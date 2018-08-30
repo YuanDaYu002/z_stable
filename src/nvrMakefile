@@ -1,0 +1,30 @@
+
+CC = arm-hisiv100nptl-linux-gcc
+CPP = arm-hisiv100nptl-linux-g++
+TR = arm-hisiv100nptl-linux-strip
+AR = arm-hisiv100nptl-linux-ar
+include ./version
+CFLAGS   = -g -Wall -D_FILE_OFFSET_BITS=64 -fPIC -DP2P_LIB_VERSION=$(LIB_VERSION) -DBUILD_APP_VERSION=1 -DBUILD_UBOOT_VERSION=1 -DBUILD_KERNEL_VERSION=1 -DBUILD_ROOTFS_VERSION=1 -DBUILD_HW_VERSION=1 -DMAX_CHANNEL_NUM=4 -D_BUILD_FOR_NVR_ -DPLATFORM_HI3520D -DBUILD_CAB_VERSION
+           CPPFLAGS =  -I../include -I../zmdnetlib/include -I../include -I../include/jpg_include -I../include/normal_api -I../include/his_api -I../include/xmlResolve -I../include/gui -I../include/parameter -I../include/encode -I../include/decode -I../include/filemanage -I../include/record -I../include/blockmanage -I../include/App -I../include/upgrade -I../include/peripheral -I../include//at88sc0104 -I../include/alarm -I../include/logmanage/ -I../include/g3modem -I../include/httpd/include -I../include/net -I/home/share/libxml/include/libxml2 -I../net/miniupnpc -I/include -I../include/ptz -I../zmdnetlib/tcplib/include -I../include/zmdnetlib/ -I../zmdnetlib/zmdnetlib/src -I./json -I./httpclient -I./curl/ -I../include/wifi -I../include/buffermanage -I../include/his_api/3520D/include/ -I../zmdnetlib/include/zmdnetlib/ -I../zmdnetlib/include/tcplib/ -I../zmdnetlib/tcplib/include -I../include/zmdnetlib/ -I../zmdnetlib/zmdnetlib/src -I../include/gui/V2 -I../include/mediaplayer/ -I../include/snapProcess/ -I./pjsip/include -I./tls -I./nopoll -I./ws -I./
+LIBS	= -DPJ_AUTOCONF=1	-DPJ_IS_BIG_ENDIAN=0 -DPJ_IS_LITTLE_ENDIAN=1
+LIBDIR = ../lib/meshare
+BIN      = zdemo
+ZLIB_SO  = libmeshare.so
+ZLIB_A   = libmeshare.a
+CPPSRCS = $(wildcard *.cpp)
+CPPSRCS += $(wildcard ws/*.cpp)
+CPPOBJS := $(patsubst %.cpp, ./obj/%.o, $(CPPSRCS))
+./obj/%.o: %.cpp
+	$(CPP) $(CFLAGS) -c $< -o $@ $(CPPFLAGS) $(LDFLAGS) $(LIBS) $(STATICLIBS)
+
+all:$(CPPOBJS)
+	$(AR) -r $(ZLIB_A) ./obj/*.o ./obj/ws/*.o
+	cp $(ZLIB_A) ../lib/meshare
+
+clean:
+	-rm -f $(BIN)
+	-rm -f $(ZLIB_SO)
+	-rm -f $(ZLIB_A)
+	-rm -f $(CPPOBJS)
+	-rm -f obj/ws/*.o
+

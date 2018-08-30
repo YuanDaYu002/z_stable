@@ -1,0 +1,38 @@
+
+CC = gcc
+CPP = g++
+TR = strip
+AR = ar
+CFLAGS   = -Wall -D_FILE_OFFSET_BITS=64 -fPIC -DDEBUG_ZSIP -g 
+CPPFLAGS =  -I../include -I../include/sip/pjsip/include -I./json -I./httpclient -I./curl/ -I../include -I../include/encode
+LDFLAGS  = -L/home/albert/build/pjsip_pc/lib
+LIBS	= -DPJ_AUTOCONF=1	-DPJ_IS_BIG_ENDIAN=0 -DPJ_IS_LITTLE_ENDIAN=1 -lpjsip-ua-i686-pc-linux-gnu -lpjsip-i686-pc-linux-gnu -lpjmedia-i686-pc-linux-gnu -lpjnath-i686-pc-linux-gnu -lpjlib-util-i686-pc-linux-gnu -lpj-i686-pc-linux-gnu -lm -lnsl -lrt -lpthread -ludt -ljson -lcurl #-lcrypto # -lssl 
+STATICLIBS =
+BIN      = zdemo
+ZLIB_SO  = libzsip.so
+ZLIB_A   = libzsip.a
+CPPSRCS = $(wildcard *.cpp)
+#CPPSRCS = zsip_main.cpp zsip.cpp
+CPPLIBSRC = zsip.cpp
+OBJLIBSRC = ./obj/zsip.o
+CPPOBJS := $(patsubst %.cpp, ./obj/%.o, $(CPPSRCS))
+./obj/%.o: %.cpp
+	$(CPP) $(CFLAGS) -c $< -o $@ $(CPPFLAGS) $(LDFLAGS) $(LIBS) $(STATICLIBS)
+
+all:$(CPPOBJS)
+	$(CPP) $(CFLAGS) -o $(BIN) $(CPPOBJS) $(LDFLAGS) $(LIBS)  $(STATICLIBS)
+	cp $(BIN) /home/zmodo/nfs
+
+zlib:$(CPPOBJS)
+	$(CPP) $(CFLAGS) -c $(CPPOBJS) $(LDFLAGS) $(LIBS) $(STATICLIBS)
+	$(AR) -r $(ZLIB_A) ./obj/*.o
+lib:
+	$(CPP) -shared $(CFLAGS) -o $(ZLIB_SO) $(CPPLIBSRC) $(LDFLAGS) $(LIBS) $(STATICLIBS)
+	ar r $(ZLIB_A) $(OBJLIBSRC)	
+
+clean:
+	-rm -f $(BIN)
+	-rm -f $(ZLIB_SO)
+	-rm -f $(ZLIB_A)
+	-rm -f $(CPPOBJS)
+

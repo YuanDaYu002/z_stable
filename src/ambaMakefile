@@ -1,0 +1,22 @@
+HOST=/usr/local/linaro-multilib-2014.06-gcc4.9/bin/arm-linux-gnueabihf
+CPP= $(HOST)-g++
+TR = $(HOST)-strip
+AR = $(HOST)-ar
+include ./version
+CFLAGS   = -g -Wall -D_FILE_OFFSET_BITS=64 -fPIC -DP2P_LIB_VERSION=$(LIB_VERSION) -DAMBA
+CPPFLAGS :=-I./rtmp -I../include -I./pjsip/include -I../zmdnetlib/include -I../include -I../include/jpg_include -I../include/normal_api -I../include/his_api -I../include/gui -I../include/parameter -I../include/encode -I../include/decode -I../include/filemanage -I../include/record -I../include/App -I../include/upgrade -I../include/peripheral -I../include/alarm -I../include/logmanage/ -I../include/httpd/include -I../include/net -I/include -I../include/ptz -I../zmdnetlib/tcplib/include -I../include/zmdnetlib/ -I../zmdnetlib/zmdnetlib/src -I./json -I./httpclient -I./curl/ -I../include/wifi -I../zmdnetlib/include/zmdnetlib -I../zmdnetlib/include/tcplib/ -I../ -I../include/his_api/mpp/ -I./tls -I./nopoll -I./ws -I./
+ZLIB_A   = libmeshare.a
+CPPSRCS = $(wildcard *.cpp)
+CPPSRCS += $(wildcard ws/*.cpp)
+CPPOBJS := $(patsubst %.cpp, ./obj/%.o, $(CPPSRCS))
+./obj/%.o: %.cpp
+	$(CPP) $(CFLAGS) -c $< -o $@ $(CPPFLAGS) 
+
+all:$(CPPOBJS)
+	$(AR) -r $(ZLIB_A) ./obj/*.o ./obj/ws/*.o
+
+clean:
+	-rm -f $(ZLIB_A)
+	-rm -f $(CPPOBJS)
+	-rm -f obj/ws/*.o
+

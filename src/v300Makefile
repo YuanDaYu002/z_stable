@@ -1,0 +1,34 @@
+#HOST=arm-hisiv300-linux
+HOST=arm-hisiv300-linux
+CC = $(HOST)-gcc
+CPP= $(HOST)-g++
+TR = $(HOST)-strip
+AR = $(HOST)-ar
+include ./version
+CFLAGS   = -g -Wall -D_FILE_OFFSET_BITS=64 -fPIC -DP2P_LIB_VERSION=$(LIB_VERSION)
+CPPFLAGS := -I../include -I./pjsip/include -I../zmdnetlib/include -I../include -I../include/jpg_include -I../include/normal_api -I../include/his_api -I../include/xmlResolve -I../include/gui -I../include/parameter -I../include/encode -I../include/decode -I../include/filemanage -I../include/record -I../include/blockmanage -I../include/App -I../include/upgrade -I../include/peripheral -I../include//at88sc0104 -I../include/alarm -I../include/logmanage/ -I../include/g3modem -I../include/httpd/include -I../include/net -I../net/miniupnpc -I/include -I../include/ptz -I../zmdnetlib/tcplib/include -I../include/zmdnetlib/ -I../zmdnetlib/zmdnetlib/src -I./json -I./httpclient -I./curl/ -I../include/wifi -I../zmdnetlib/include/zmdnetlib -I../zmdnetlib/include/tcplib/ -I../
+LIBS	= -DPJ_AUTOCONF=1	-DPJ_IS_BIG_ENDIAN=0 -DPJ_IS_LITTLE_ENDIAN=1
+LIBDIR = ../lib/sip
+BIN      = zdemo
+ZLIB_SO  = libzsip.so
+ZLIB_A   = libzsip.a
+CPPSRCS = $(wildcard *.cpp)
+#CPPSRCS = zsip_main.cpp zsip.cpp
+CPPLIBSRC = zsip.cpp
+OBJLIBSRC = ./obj/zsip.o
+CPPOBJS := $(patsubst %.cpp, ./obj/%.o, $(CPPSRCS))
+./obj/%.o: %.cpp
+	$(CPP) $(CFLAGS) -c $< -o $@ $(CPPFLAGS) $(LDFLAGS) $(LIBS) $(STATICLIBS)
+
+all:$(CPPOBJS)
+	$(AR) -r $(ZLIB_A) ./obj/*.o
+	cp $(ZLIB_A) ../lib_300/sip
+lib:
+	$(ar) r $(ZLIB_A) $(OBJLIBSRC)	
+
+clean:
+	-rm -f $(BIN)
+	-rm -f $(ZLIB_SO)
+	-rm -f $(ZLIB_A)
+	-rm -f $(CPPOBJS)
+

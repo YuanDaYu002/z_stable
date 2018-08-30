@@ -1,0 +1,22 @@
+HOST=arm-linux-androideabi
+CPP= $(HOST)-g++
+TR = $(HOST)-strip
+AR = $(HOST)-ar
+include ./version
+CFLAGS   = -Wall -O2 -pie -fPIE -DP2P_LIB_VERSION=$(LIB_VERSION) -DAMBA -DANDROID -DANDROID_API_LEVEL_LOW
+CPPFLAGS := -I../include -I../include  -I/include  -I./json -I./curl/ -I../ -I./tls -I./nopoll -I./ws -I./
+ZLIB_A   = libmeshare.a
+CPPSRCS = $(wildcard *.cpp)
+CPPSRCS += $(wildcard ws/*.cpp)
+CPPOBJS := $(patsubst %.cpp, ./obj/%.o, $(CPPSRCS))
+./obj/%.o: %.cpp
+	$(CPP) $(CFLAGS) -c $< -o $@ $(CPPFLAGS) 
+
+all:$(CPPOBJS)
+	$(AR) -r $(ZLIB_A) ./obj/*.o ./obj/ws/*.o
+
+clean:
+	-rm -f $(ZLIB_A)
+	-rm -f $(CPPOBJS)
+	-rm -f obj/ws/*.o
+
